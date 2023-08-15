@@ -104,9 +104,18 @@ public class MainForm : Form
             {
                 var sizeNode = row.SelectSingleNode(".//div[@class='col-sm-2 col-lg-1 hidden-xs text-right size']");
                 var sizeText = sizeNode?.InnerText.Trim() ?? string.Empty;
+                if (fileNode != null)
+                {
+                    var fileName = fileNode.InnerText.Trim();
+                    if (fileName.Contains(".zip") || fileName.Contains(".rar") || fileName.Contains(".iso"))
+                    {
+                        continue;
+                    }
+                }
 
                 if (TryParseSize(sizeText, out double currentSize) && currentSize > maxSize)
                 {
+                    if (currentSize > 10240) continue;
                     maxSize = currentSize;
                     var hrefNode = row.SelectSingleNode(".//a");
                     maxHref = hrefNode.GetAttributeValue("href", string.Empty);
