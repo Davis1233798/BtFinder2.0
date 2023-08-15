@@ -11,15 +11,50 @@ public class MainForm : Form
     private const string BaseUrl = "https://tellme.pw/btsow";
     private Timer clipboardCheckTimer = new Timer();
     private string lastClipboardText = string.Empty;
-
+    private NotifyIcon notifyIcon;
     public MainForm()
     {
         this.WindowState = FormWindowState.Minimized;
         this.ShowInTaskbar = false;
-        
+
+        SetupNotifyIcon();
+
         clipboardCheckTimer.Interval = 1000;
         clipboardCheckTimer.Tick += ClipboardCheckTimer_Tick;
         clipboardCheckTimer.Start();
+    }
+    private void SetupNotifyIcon()
+    {
+        notifyIcon = new NotifyIcon();
+        notifyIcon.Text = "BTFinder";  // 這將是當鼠標懸停在圖標上時顯示的文本。
+        notifyIcon.Icon = this.Icon;  // 您可以設置為任何其他圖標。
+        notifyIcon.Visible = true;
+
+        // 添加一個上下文菜單，提供退出選項。
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem exitMenuItem = new MenuItem("Exit", ExitMenuItem_Click);
+        contextMenu.MenuItems.Add(exitMenuItem);
+        notifyIcon.ContextMenu = contextMenu;
+
+        // 處理雙擊事件。
+        notifyIcon.DoubleClick += NotifyIcon_DoubleClick;
+    }
+
+    private void NotifyIcon_DoubleClick(object sender, EventArgs e)
+    {
+        this.WindowState = FormWindowState.Normal;
+        this.ShowInTaskbar = true;
+    }
+
+    private void ExitMenuItem_Click(object sender, EventArgs e)
+    {
+        this.Close();
+    }
+
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        base.OnFormClosing(e);
+        notifyIcon.Dispose();  // 確保清除 NotifyIcon。
     }
 
     private static HttpClient CreateHttpClient()
